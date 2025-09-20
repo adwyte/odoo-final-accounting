@@ -1,15 +1,18 @@
-// src/app/page.tsx
-import Link from "next/link";
-
-export default function Page() {
+export default function Home() {
   return (
-    <main className="p-8">
-      <h1 className="text-2xl font-semibold">Shiv Accounts Cloud</h1>
-      <p className="text-slate-600 mt-2">Orders, Invoices & Real-Time Reports</p>
-
-      <div className="mt-6 flex gap-4">
-        <Link href="/login" className="underline">Log in</Link>
-        <Link href="/signup" className="underline">Sign up</Link>
+    <main className="min-h-screen flex items-center justify-center p-8">
+      <div className="grid gap-4 sm:grid-cols-2 max-w-2xl w-full">
+        {[
+          { href: "/masters/contacts", label: "Contact Master" },
+          { href: "/masters/products", label: "Product Master" },
+          { href: "/masters/taxes", label: "Taxes Master" },
+          { href: "/masters/chart-of-accounts", label: "Chart of Accounts" },
+        ].map((i) => (
+          <a key={i.href} href={i.href} className="rounded-xl border p-6 hover:bg-neutral-50">
+            <div className="text-lg font-semibold">{i.label}</div>
+            <div className="text-sm text-neutral-500">Open</div>
+          </a>
+        ))}
       </div>
     </main>
   );
