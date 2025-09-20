@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 
 type FormVals = {
   name: string;
-  loginId: string;
+  login_id: string;
   email: string;
   role: "Admin" | "Invoicing User";
   password: string;
@@ -30,20 +30,20 @@ export default function AdminCreateUser() {
       setLoading(false);
       return;
     }
-    if (data.loginId.length < 6 || data.loginId.length > 12) {
+    if (data.login_id.length < 6 || data.login_id.length > 12) {
       setErr("Login id must be 6–12 characters");
       setLoading(false);
       return;
     }
 
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/Createusers`, {
+      const res = await fetch(`http://127.0.0.1:8003/CreateUser`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        credentials: "include", // if your backend sets cookies
+        credentials: "include",
         body: JSON.stringify({
           name: data.name,
-          loginId: data.loginId,
+          login_id: data.login_id,
           email: data.email,
           role: data.role,
           password: data.password,
@@ -82,15 +82,15 @@ export default function AdminCreateUser() {
           <div className="col-md-6">
             <label className="form-label">Role</label>
             <select name="role" className="form-select border-0 border-bottom rounded-0" defaultValue="Invoicing User" required>
-              <option>Admin</option>
-              <option>Invoicing User</option>
+              <option>admin</option>
+              <option>invoicing_user</option>
             </select>
           </div>
 
           {/* Login id */}
           <div className="col-md-6">
             <label className="form-label">Login id</label>
-            <input name="loginId" className="form-control border-0 border-bottom rounded-0" placeholder="6–12 characters" minLength={6} maxLength={12} required />
+            <input name="login_id" className="form-control border-0 border-bottom rounded-0" placeholder="6–12 characters" minLength={6} maxLength={12} required />
           </div>
 
           {/* Password */}

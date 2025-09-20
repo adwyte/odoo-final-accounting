@@ -3,7 +3,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from typing import  Generator
 
-DATABASE_URL = "postgresql://postgres.bsuclmignbojamotmtff:d4bfe67c@aws-1-ap-south-1.pooler.supabase.com:5432/postgres?sslmode=require"
+DATABASE_URL = "postgresql://postgres:d4bfe67c@localhost:5432/Odoo-Hackathon"
 
 engine = create_engine(DATABASE_URL)
 
