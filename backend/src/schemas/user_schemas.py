@@ -1,28 +1,33 @@
 from pydantic import BaseModel, EmailStr, constr
 from uuid import UUID
+from enum import Enum
 
-RoleStr = constr(pattern="^(admin|invoicing_user)$")
+
+class RoleEnum(str, Enum):
+    admin = "admin"
+    invoicing_user = "invoicing_user"
 
 class UserCreate(BaseModel):
     name: str
     login_id: str
     email: EmailStr
     password: constr(min_length=8)
-    role: RoleStr
+    role: RoleEnum
+
+class LoginIn(BaseModel):
+    login_or_email: str
+    password: str
+
 
 class UserOut(BaseModel):
     user_id: UUID
     name: str
     login_id: str
     email: EmailStr
-    role: RoleStr
+    role: RoleEnum
 
     class Config:
-        from_attributes = True  # allows SQLAlchemy -> Pydantic
-
-class LoginIn(BaseModel):
-    login_or_email: str
-    password: str
+        from_attributes = True  # SQLAlchemy -> Pydantic
 
 class TokenOut(BaseModel):
     access_token: str
@@ -33,4 +38,4 @@ class MeOut(BaseModel):
     name: str
     login_id: str
     email: EmailStr
-    role: RoleStr
+    role: RoleEnum

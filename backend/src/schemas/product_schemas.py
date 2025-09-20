@@ -16,7 +16,7 @@ class ProductCreate(ProductBase):
     pass
 
 class ProductOut(ProductBase):
-    product_id: UUID
+    id: UUID
 
     class Config:
         orm_mode = True

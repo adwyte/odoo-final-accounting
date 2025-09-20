@@ -4,12 +4,12 @@ from sqlalchemy.orm import Session
 from sqlalchemy import or_
 from sqlalchemy.exc import IntegrityError
 from jose import JWTError
-from backend.src.database.database import get_db                     # same package (api)
-from ..models.user_models import User             # up to src, then models
-from ..schemas.user_schemas import (             # up to src, then schemas
+from backend.src.database.database import get_db  # same package (api)
+from ..models.user_models import User  # up to src, then models
+from ..schemas.user_schemas import (  # up to src, then schemas
     UserCreate, UserOut, LoginIn, TokenOut, MeOut
 )
-from ..utils.security import (                    # up to src, then core
+from ..utils.security import (  # up to src, then core
     hash_password, verify_password, create_access_token, decode_token
 )
 
@@ -18,7 +18,8 @@ router = APIRouter(prefix="", tags=["auth"])
 # Swagger UI shows a "lock" and lets us extract Bearer tokens easily
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
-@router.post("/users", response_model=UserOut, status_code=status.HTTP_201_CREATED)
+
+@router.post("/CreateUser", response_model=UserOut)
 def create_user(payload: UserCreate, db: Session = Depends(get_db)):
     hashed = hash_password(payload.password)
 
@@ -31,7 +32,7 @@ def create_user(payload: UserCreate, db: Session = Depends(get_db)):
     )
     db.add(new_user)
     try:
-        db.commit()       # try writing to DB
+        db.commit()  # try writing to DB
     except IntegrityError:
         db.rollback()
         # Most likely the email or login_id is already taken due to UNIQUE constraints
@@ -42,9 +43,9 @@ def create_user(payload: UserCreate, db: Session = Depends(get_db)):
     db.refresh(new_user)  # pull back generated user_id, created_at, etc.
     return new_user
 
+
 @router.post("/login", response_model=TokenOut)
 def login(payload: LoginIn, db: Session = Depends(get_db)):
-
     key = payload.login_or_email.strip().lower()
 
     user = db.query(User).filter(
@@ -63,6 +64,7 @@ def login(payload: LoginIn, db: Session = Depends(get_db)):
         extra_claims={"email": user.email, "role": user.role, "name": user.name}
     )
     return {"access_token": token, "token_type": "bearer"}
+
 
 @router.get("/me", response_model=MeOut)
 def me(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
