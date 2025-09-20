@@ -4,8 +4,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import or_
 from sqlalchemy.exc import IntegrityError
 from jose import JWTError
-
-from .connectDB import get_db                     # same package (api)
+from backend.src.database.database import get_db                     # same package (api)
 from ..models.user_models import User             # up to src, then models
 from ..schemas.user_schemas import (             # up to src, then schemas
     UserCreate, UserOut, LoginIn, TokenOut, MeOut
@@ -45,12 +44,7 @@ def create_user(payload: UserCreate, db: Session = Depends(get_db)):
 
 @router.post("/login", response_model=TokenOut)
 def login(payload: LoginIn, db: Session = Depends(get_db)):
-    """
-    LOGIN
-    1) Find by login_id OR email (case-insensitive)
-    2) Verify password with bcrypt
-    3) Return a signed JWT access token
-    """
+
     key = payload.login_or_email.strip().lower()
 
     user = db.query(User).filter(
