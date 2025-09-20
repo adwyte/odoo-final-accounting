@@ -1,5 +1,9 @@
 from fastapi import FastAPI
-from .src.api.auth import router as auth_router   # note the leading dot: inside 'backend' package
+from backend.src.database.database import engine, Base
+from backend.src.models import product_models
+from backend.src.api.product_apis import router as products
+Base.metadata.create_all(bind=engine)
+from .src.api.auth import router as auth_router
 
 app = FastAPI(
     title="Shiv Accounts Cloud - API",
@@ -9,8 +13,8 @@ app = FastAPI(
 
 # Mount routes
 app.include_router(auth_router)
+app.include_router(products)
 
-# Health check
 @app.get("/")
 def health():
     return {"ok": True, "message": "API is running"}

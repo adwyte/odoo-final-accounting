@@ -1,5 +1,4 @@
 from pydantic import BaseModel, EmailStr, constr
-from typing import Optional
 from uuid import UUID
 
 RoleStr = constr(pattern="^(admin|invoicing_user)$")
