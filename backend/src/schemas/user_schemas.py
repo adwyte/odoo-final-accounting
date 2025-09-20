@@ -10,7 +10,7 @@ class RoleEnum(str, Enum):
 class UserCreate(BaseModel):
     name: str
     login_id: str
-    email: EmailStr
+    email: str
     password: constr(min_length=8)
     role: RoleEnum
 
@@ -20,7 +20,7 @@ class LoginIn(BaseModel):
 
 
 class UserOut(BaseModel):
-    user_id: UUID
+    id: UUID
     name: str
     login_id: str
     email: EmailStr
@@ -34,7 +34,7 @@ class TokenOut(BaseModel):
     token_type: str = "bearer"
 
 class MeOut(BaseModel):
-    user_id: UUID
+    id: UUID
     name: str
     login_id: str
     email: EmailStr

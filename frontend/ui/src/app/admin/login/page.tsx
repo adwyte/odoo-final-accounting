@@ -7,7 +7,7 @@ type FormVals = {
   name: string;
   login_id: string;
   email: string;
-  role: "Admin" | "Invoicing User";
+  role: "admin" | "invoicing_user";
   password: string;
   confirm: string;
 };
@@ -37,7 +37,7 @@ export default function AdminCreateUser() {
     }
 
     try {
-      const res = await fetch(`http://127.0.0.1:8003/CreateUser`, {
+      const res = await fetch(`http://127.0.0.1:8005/CreateUser`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",

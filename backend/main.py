@@ -14,14 +14,15 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],  # your frontend URL
+    allow_origins=["http://localhost:3000","http://localhost:3001"],
     allow_credentials=True,
-    allow_methods=["*"],  # allow POST, GET, OPTIONS etc.
+    allow_methods=["*"],
     allow_headers=["*"],
 )
 # Mount routes
 app.include_router(auth_router)
 app.include_router(products)
+#app.include_router(contacts)
 
 @app.get("/")
 def health():
