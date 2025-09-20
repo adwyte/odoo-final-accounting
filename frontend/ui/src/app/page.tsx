@@ -1,52 +1,26 @@
-// src/app/page.tsx
+"use client";
 import Link from "next/link";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-const tiles = [
-  {
-    href: "/masters/contacts",
-    title: "Contact Master",
-    blurb: "Customers, Vendors & Addresses",
-  },
-  {
-    href: "/masters/products",
-    title: "Product Master",
-    blurb: "Goods/Services, HSN/SAC, Pricing & Tax",
-  },
-  {
-    href: "/masters/taxes",
-    title: "Taxes Master",
-    blurb: "GST %, Fixed Value, Sales/Purchase",
-  },
-  {
-    href: "/masters/chart-of-accounts",
-    title: "Chart of Accounts",
-    blurb: "Assets, Liabilities, Income, Expenses, Equity",
-  },
-];
-
-export default function Home() {
+export default function WelcomePage() {
   return (
-    <div className="space-y-8">
-      <section className="text-center space-y-2">
-        <h1 className="text-3xl font-semibold tracking-tight">Welcome to Shiv Accounts Cloud</h1>
-        <p className="text-neutral-600">
-          Start by managing your Master Data, or jump to login/sign up from the navbar.
-        </p>
-      </section>
+    <main className="min-h-screen flex flex-col items-center justify-center bg-gray-50">
+      <h1 className="text-4xl font-bold mb-4">Welcome to Shiv Accounts Cloud</h1>
+      <p className="text-gray-600 mb-8">Manage your accounts with ease.</p>
 
-      <section className="grid gap-4 sm:grid-cols-2">
-        {tiles.map((t) => (
-          <Link key={t.href} href={t.href}>
-            <Card className="hover:shadow-md transition-shadow h-full">
-              <CardHeader>
-                <CardTitle>{t.title}</CardTitle>
-              </CardHeader>
-              <CardContent className="text-sm text-neutral-600">{t.blurb}</CardContent>
-            </Card>
-          </Link>
-        ))}
-      </section>
-    </div>
+      <div className="flex space-x-4">
+        <Link
+          href="/login"
+          className="px-4 py-2 bg-emerald-600 text-white rounded-lg"
+        >
+          Log in
+        </Link>
+        <Link
+          href="/signup"
+          className="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg"
+        >
+          Sign up
+        </Link>
+      </div>
+    </main>
   );
 }

@@ -37,7 +37,7 @@ export default function AdminCreateUser() {
     }
 
     try {
-      const res = await fetch(`http://127.0.0.1:8005/CreateUser`, {
+      const res = await fetch(`http://127.0.0.1:8001/CreateUser`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",

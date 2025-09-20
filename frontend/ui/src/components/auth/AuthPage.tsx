@@ -14,7 +14,7 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Checkbox } from "@/components/ui/checkbox";
 
-// ------------------- Schemas -------------------
+
 const loginSchema = z.object({
   email: z.string().email("Use a valid email, please."),
   password: z.string().min(6, "At least 6 characters."),

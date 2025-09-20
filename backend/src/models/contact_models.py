@@ -1,6 +1,7 @@
 from pydantic import BaseModel, EmailStr
 from uuid import UUID
 from enum import Enum
+from typing import Optional
 
 class ContactType(str, Enum):
     customer = "customer"
@@ -14,11 +15,11 @@ class ContactBase(BaseModel):
     type: ContactType
 
 class ContactCreate(ContactBase):
-    created_by: UUID
+    created_by: Optional[UUID] = None
 
 class ContactOut(ContactBase):
     id: UUID
-    created_by: UUID
+    created_by: UUID | None = None
 
     class Config:
         from_attributes = True
