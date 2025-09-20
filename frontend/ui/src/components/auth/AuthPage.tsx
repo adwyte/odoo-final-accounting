@@ -1,6 +1,8 @@
 "use client";
+
 import React from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -14,13 +16,15 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
 import { Checkbox } from "@/components/ui/checkbox";
 
+/** ────────────────────────────────────────────────────────────────────────────
+ * Validation
+ * ──────────────────────────────────────────────────────────────────────────── */
 const loginSchema = z.object({
   email: z.string().email("Use a valid email, please."),
   password: z.string().min(6, "At least 6 characters."),
   remember: z.boolean().default(false),
 });
 type LoginValues = z.infer<typeof loginSchema>;
-
 
 const signupSchema = z
   .object({
@@ -29,9 +33,7 @@ const signupSchema = z
     password: z.string().min(8, "Minimum 8 characters."),
     confirm: z.string().min(8, "Minimum 8 characters."),
     orgName: z.string().optional(),
-    accept: z.boolean().refine((v) => v === true, {
-      message: "You need to accept the Terms.",
-    }),
+    accept: z.boolean().refine((v) => v === true, { message: "You need to accept the Terms." }),
   })
   .refine((v) => v.password === v.confirm, {
     path: ["confirm"],
@@ -53,6 +55,7 @@ export default function AuthPage({ mode = "login" }: { mode?: "login" | "signup"
             <CardTitle className="text-2xl">Shiv Accounts Cloud</CardTitle>
             <CardDescription>Orders, Invoices &amp; Real-Time Reports</CardDescription>
           </CardHeader>
+
           <CardContent>
             <Tabs defaultValue={mode} className="w-full">
               <TabsList className="grid grid-cols-2">
@@ -63,6 +66,7 @@ export default function AuthPage({ mode = "login" }: { mode?: "login" | "signup"
                   <Link href="/signup">Sign up</Link>
                 </TabsTrigger>
               </TabsList>
+
               <TabsContent value="login" className="mt-6">
                 <LoginForm />
               </TabsContent>
@@ -72,19 +76,11 @@ export default function AuthPage({ mode = "login" }: { mode?: "login" | "signup"
             </Tabs>
 
             <Separator className="my-6" />
+
             <div className="space-y-3">
-              <Button
-                variant="outline"
-                className="w-full"
-                type="button"
-                onClick={() => alert("TODO: OAuth Google")}
-              >
-                {/* placeholder glyph */}
-                <svg
-                  viewBox="0 0 533.5 544.3"
-                  className="h-4 w-4 mr-2"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
+              <Button variant="outline" className="w-full" type="button" onClick={() => alert("TODO: OAuth Google")}>
+                {/* google glyph placeholder */}
+                <svg viewBox="0 0 533.5 544.3" className="h-4 w-4 mr-2" xmlns="http://www.w3.org/2000/svg">
                   <path d="M533.5 278.4c0-17.4-1.6-34.1-4.7-50.4H272v95.3h147.3c-6.4 34.7-25.7 64-54.7 83.7v69.3h88.4c51.7-47.6 80.5-117.8 80.5-197.9z" />
                   <path d="M272 544.3c73.5 0 135.2-24.3 180.3-66.1l-88.4-69.3c-24.5 16.4-55.9 26-91.9 26-70.7 0-130.6-47.7-152-111.8H29.7v70.2C74.4 486.3 166.5 544.3 272 544.3z" />
                   <path d="M120 322.9c-10.3-30.7-10.3-64 0-94.7V158H29.7C-9.8 235.4-9.8 335.3 29.7 412.8l90.3-69.9z" />
@@ -92,15 +88,12 @@ export default function AuthPage({ mode = "login" }: { mode?: "login" | "signup"
                 </svg>
                 Continue with Google
               </Button>
-              <Button
-                variant="outline"
-                className="w-full"
-                type="button"
-                onClick={() => alert("TODO: OAuth GitHub")}
-              >
+
+              <Button variant="outline" className="w-full" type="button" onClick={() => alert("TODO: OAuth GitHub")}>
                 <GithubIcon className="h-4 w-4 mr-2" /> Continue with GitHub
               </Button>
             </div>
+
             <p className="text-xs text-muted-foreground mt-6 text-center">
               Admin · Invoicing User · Contact — roles are applied after login.
             </p>
@@ -123,7 +116,11 @@ export default function AuthPage({ mode = "login" }: { mode?: "login" | "signup"
   );
 }
 
+/** ────────────────────────────────────────────────────────────────────────────
+ * Login form
+ * ──────────────────────────────────────────────────────────────────────────── */
 function LoginForm() {
+  const router = useRouter();
   const [show, setShow] = React.useState(false);
 
   const {
@@ -145,22 +142,19 @@ function LoginForm() {
       });
 
       if (!res.ok) {
-        const err = await res.json();
+        const err = await res.json().catch(() => ({}));
         throw new Error(err.detail || "Login failed");
       }
 
       const data = await res.json();
-      console.log("LOGIN SUCCESS:", data);
       localStorage.setItem("token", data.access_token);
-      alert("Login successful!");
+      if (values.remember) localStorage.setItem("remember", "true");
+
+      router.push("/dashboard"); // ✅ redirect after login
     } catch (err: unknown) {
-      if (err instanceof Error) {
-        console.error("LOGIN ERROR:", err);
-        alert(err.message);
-      } else {
-        console.error("Unexpected LOGIN ERROR:", err);
-        alert("Login failed. Please try again.");
-      }
+      const msg = err instanceof Error ? err.message : "Login failed. Please try again.";
+      alert(msg);
+      console.error("LOGIN ERROR:", err);
     }
   };
 
@@ -171,13 +165,7 @@ function LoginForm() {
         <Label htmlFor="email">Email</Label>
         <div className="relative">
           <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-          <Input
-            id="email"
-            type="email"
-            placeholder="you@company.com"
-            className="pl-9"
-            {...register("email")}
-          />
+          <Input id="email" type="email" placeholder="you@company.com" className="pl-9" {...register("email")} />
         </div>
         {errors.email && <p className="text-xs text-red-500">{errors.email.message}</p>}
       </div>
@@ -226,7 +214,11 @@ function LoginForm() {
   );
 }
 
+/** ────────────────────────────────────────────────────────────────────────────
+ * Signup form
+ * ──────────────────────────────────────────────────────────────────────────── */
 function SignupForm() {
+  const router = useRouter();
   const [show, setShow] = React.useState(false);
 
   const {
@@ -246,8 +238,29 @@ function SignupForm() {
   });
 
   const onSubmit = async (values: SignupValues) => {
-    console.log("SIGNUP", values);
-    await new Promise((r) => setTimeout(r, 700));
+    try {
+      // adjust to your real endpoint
+      const res = await fetch("http://localhost:8000/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(values),
+      });
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.detail || "Signup failed");
+      }
+
+      const data = await res.json();
+      // if your API returns token on signup:
+      if (data?.access_token) localStorage.setItem("token", data.access_token);
+
+      router.push("/dashboard"); // ✅ redirect after signup
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Signup failed. Please try again.";
+      alert(msg);
+      console.error("SIGNUP ERROR:", err);
+    }
   };
 
   return (
@@ -264,13 +277,7 @@ function SignupForm() {
         <Label htmlFor="email2">Work email</Label>
         <div className="relative">
           <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-          <Input
-            id="email2"
-            type="email"
-            placeholder="you@shivfurniture.com"
-            className="pl-9"
-            {...register("email")}
-          />
+          <Input id="email2" type="email" placeholder="you@shivfurniture.com" className="pl-9" {...register("email")} />
         </div>
         {errors.email && <p className="text-xs text-red-500">{errors.email.message}</p>}
       </div>
@@ -280,12 +287,7 @@ function SignupForm() {
         <Label htmlFor="orgName">Organization (optional)</Label>
         <div className="relative">
           <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-          <Input
-            id="orgName"
-            placeholder="Shiv Furniture - Main Branch"
-            className="pl-9"
-            {...register("orgName")}
-          />
+          <Input id="orgName" placeholder="Shiv Furniture - Main Branch" className="pl-9" {...register("orgName")} />
         </div>
       </div>
 
@@ -316,12 +318,7 @@ function SignupForm() {
       {/* Confirm */}
       <div className="space-y-2">
         <Label htmlFor="confirm">Confirm password</Label>
-        <Input
-          id="confirm"
-          type="password"
-          placeholder="Re-enter password"
-          {...register("confirm")}
-        />
+        <Input id="confirm" type="password" placeholder="Re-enter password" {...register("confirm")} />
         {errors.confirm && <p className="text-xs text-red-500">{errors.confirm.message}</p>}
       </div>
 
