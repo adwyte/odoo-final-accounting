@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 from backend.src.database.database import engine, Base
 from backend.src.models import product_models
+from backend.src.api.taxes_api import router as taxes_router
 from backend.src.api.product_apis import router as products
 #Base.metadata.create_all(bind=engine)
 from .src.api.auth import router as auth_router
@@ -22,6 +23,7 @@ app.add_middleware(
 # Mount routes
 app.include_router(auth_router)
 app.include_router(products)
+app.include_router(taxes_router)
 #app.include_router(contacts)
 
 @app.get("/")
