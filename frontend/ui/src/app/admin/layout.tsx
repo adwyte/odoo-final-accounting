@@ -13,7 +13,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         {/* Simple admin navbar */}
         <nav className="navbar navbar-expand navbar-light bg-white border-bottom mb-3">
           <div className="container">
-            <a className="navbar-brand" href="/">Admin</a>
+            {/* <a className="navbar-brand" href="/">Admin</a> */}
           </div>
         </nav>
         <main className="container my-4">{children}</main>
