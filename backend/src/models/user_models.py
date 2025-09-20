@@ -1,15 +1,21 @@
-from sqlalchemy import Column, String, Text, TIMESTAMP
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy import Column, Text, TIMESTAMP, text
+from sqlalchemy.dialects.postgresql import UUID, ENUM
 from sqlalchemy.sql import func
-from backend.src.database.database import Base
+from ..database.database import Base
+
+roles_enum = ENUM('admin', 'invoicing_user', name='user_roles', create_type=True)
 
 class User(Base):
     __tablename__ = "users"
 
-    user_id   = Column(UUID(as_uuid=True), primary_key=True)
-    name      = Column(Text, nullable=False)
-    login_id  = Column(Text, nullable=False, unique=True)
-    email     = Column(Text, nullable=False, unique=True)
-    password  = Column(Text, nullable=False)  # stores bcrypt hash
-    role      = Column(Text, nullable=False)  # 'admin' or 'invoicing_user'
-    created_at = Column(TIMESTAMP(timezone=False), server_default=func.now())
+    user_id = Column(
+        UUID(as_uuid=True),
+        primary_key=True,
+        server_default=text("gen_random_uuid()")
+    )
+    name = Column(Text, nullable=False)
+    login_id = Column(Text, nullable=False, unique=True)
+    email = Column(Text, nullable=False, unique=True)
+    password = Column(Text, nullable=False)
+
+    role = Column(roles_enum, nullable=False)

@@ -53,5 +53,5 @@ next-env.d.ts
 
 # editor
 .vscode/
-.idea/
+.idea/`
 *.swp
