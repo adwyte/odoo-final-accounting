@@ -1,52 +1,26 @@
-// src/app/page.tsx
-import Link from "next/link";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+// Home (server component)
+import TopMenu from "@/components/home/TopMenu";
+import KPIs from "@/components/home/KPIs";
 
-const tiles = [
-  {
-    href: "/masters/contacts",
-    title: "Contact Master",
-    blurb: "Customers, Vendors & Addresses",
-  },
-  {
-    href: "/masters/products",
-    title: "Product Master",
-    blurb: "Goods/Services, HSN/SAC, Pricing & Tax",
-  },
-  {
-    href: "/masters/taxes",
-    title: "Taxes Master",
-    blurb: "GST %, Fixed Value, Sales/Purchase",
-  },
-  {
-    href: "/masters/chart-of-accounts",
-    title: "Chart of Accounts",
-    blurb: "Assets, Liabilities, Income, Expenses, Equity",
-  },
-];
+// Example data – replace with API later
+const kpiData = {
+  invoice: { d1: 0, d7: 23610, d30: 23610, delta: -12.2 },
+  purchase: { d1: 0, d7: 17857, d30: 17857, delta: -8.33 },
+  payment: { d1: 0, d7: 5752, d30: 5752, delta: -80.0 },
+};
 
 export default function Home() {
   return (
-    <div className="space-y-8">
-      <section className="text-center space-y-2">
-        <h1 className="text-3xl font-semibold tracking-tight">Welcome to Shiv Accounts Cloud</h1>
-        <p className="text-neutral-600">
-          Start by managing your Master Data, or jump to login/sign up from the navbar.
-        </p>
-      </section>
-
-      <section className="grid gap-4 sm:grid-cols-2">
-        {tiles.map((t) => (
-          <Link key={t.href} href={t.href}>
-            <Card className="hover:shadow-md transition-shadow h-full">
-              <CardHeader>
-                <CardTitle>{t.title}</CardTitle>
-              </CardHeader>
-              <CardContent className="text-sm text-neutral-600">{t.blurb}</CardContent>
-            </Card>
-          </Link>
-        ))}
-      </section>
+    <div className="space-y-10">
+      <TopMenu />
+      <KPIs
+        title="Dashboard"
+        groups={[
+          { label: "Total Invoice", ...kpiData.invoice },
+          { label: "Total Purchase", ...kpiData.purchase },
+          { label: "Total Payment", ...kpiData.payment },
+        ]}
+      />
     </div>
   );
 }
