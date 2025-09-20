@@ -3,7 +3,7 @@ from starlette.middleware.cors import CORSMiddleware
 from backend.src.database.database import engine, Base
 from backend.src.models import product_models
 from backend.src.api.product_apis import router as products
-Base.metadata.create_all(bind=engine)
+#Base.metadata.create_all(bind=engine)
 from .src.api.auth import router as auth_router
 
 app = FastAPI(
