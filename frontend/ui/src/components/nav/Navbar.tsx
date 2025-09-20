@@ -39,10 +39,10 @@ export default function Navbar() {
         </nav>
 
         <div className="flex items-center gap-2">
-          <Button asChild variant="ghost">
+          <Button asChild variant="outline">
             <Link href="/login">Log in</Link>
           </Button>
-          <Button asChild>
+          <Button asChild variant="outline">
             <Link href="/signup">Sign up</Link>
           </Button>
         </div>
