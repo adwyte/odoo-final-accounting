@@ -22,59 +22,98 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
+// Frontend Tax type
 type Tax = {
   id: string;
   name: string;
   method: "Percentage" | "Fixed";
-  appliesTo: "Sales" | "Purchase";
-  value: number;
+  type: "Sales" | "Purchase"; // matches backend
+  rate: number;              // matches backend
 };
 
+// Form schema
 const schema = z.object({
   name: z.string().min(1),
   method: z.enum(["Percentage", "Fixed"]),
-  appliesTo: z.enum(["Sales", "Purchase"]),
-  value: z.coerce.number().nonnegative(),
+  type: z.enum(["Sales", "Purchase"]),
+  rate: z.coerce.number().nonnegative(),
 });
 type FormVals = z.infer<typeof schema>;
 
 export default function Page() {
-  const [rows, setRows] = React.useState<Tax[]>([
-    { id: "t1", name: "GST 5%", method: "Percentage", appliesTo: "Sales", value: 5 },
-    { id: "t2", name: "GST 10%", method: "Percentage", appliesTo: "Purchase", value: 10 },
-  ]);
+  const [rows, setRows] = React.useState<Tax[]>([]);
   const [archived, setArchived] = React.useState<Record<string, boolean>>({});
   const [active, setActive] = React.useState<Tax | null>(null);
+  const [loading, setLoading] = React.useState<boolean>(true);
 
   const form = useForm<FormVals>({
     resolver: zodResolver(schema),
-    defaultValues: { name: "", method: "Percentage", appliesTo: "Sales", value: 0 },
+    defaultValues: { name: "", method: "Percentage", type: "Sales", rate: 0 },
   });
 
+  // Fetch taxes from API
+  React.useEffect(() => {
+    fetch("http://localhost:8001/taxes/")
+      .then((res) => res.json())
+      .then((data: Tax[]) => setRows(Array.isArray(data) ? data : []))
+      .catch((err) => {
+        console.error("Failed to fetch taxes:", err);
+        setRows([]);
+      })
+      .finally(() => setLoading(false));
+  }, []);
+
+  // Reset form when switching active
   React.useEffect(() => {
     if (active) {
       const { id, ...rest } = active;
       form.reset(rest as FormVals);
     } else {
-      form.reset({ name: "", method: "Percentage", appliesTo: "Sales", value: 0 });
+      form.reset({ name: "", method: "Percentage", type: "Sales", rate: 0 });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [active]);
 
-  const save = (data: FormVals) => {
-    setRows((prev) => {
-      if (!active) return prev;
-      const exists = prev.some((p) => p.id === active.id);
-      return exists
-        ? prev.map((p) => (p.id === active.id ? { ...active, ...data } : p))
-        : [{ ...(active as Tax), ...data }, ...prev];
-    });
-    setActive(null);
+  // Save handler (maps frontend form to backend fields)
+  const save = async (data: FormVals) => {
+    try {
+      const payload = {
+        ...data, // name, method, type, rate
+      };
+
+      const res = await fetch("http://localhost:8001/taxes/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok) throw new Error("Failed to create tax");
+
+      const saved: Tax = await res.json();
+
+      setRows((prev) => {
+        const exists = prev.some((p) => p.id === saved.id);
+        return exists ? prev.map((p) => (p.id === saved.id ? saved : p)) : [saved, ...prev];
+      });
+      setActive(null);
+    } catch (err) {
+      console.error(err);
+      alert("Failed to save tax. See console for details.");
+    }
   };
 
   const toolbar = (
     <>
-      <ToolbarButton onClick={() => setActive({ id: crypto.randomUUID(), name: "", method: "Percentage", appliesTo: "Sales", value: 0 })}>
+      <ToolbarButton
+        onClick={() =>
+          setActive({
+            id: crypto.randomUUID(),
+            name: "",
+            method: "Percentage",
+            type: "Sales",
+            rate: 0,
+          })
+        }
+      >
         New
       </ToolbarButton>
       <ToolbarButton disabled={!active} onClick={form.handleSubmit(save)}>
@@ -97,16 +136,20 @@ export default function Page() {
 
   return (
     <MasterFrame title="Taxes Master" toolbar={toolbar}>
-      {!active ? (
+      {loading ? (
+        <Section>
+          <p>Loading taxes...</p>
+        </Section>
+      ) : !active ? (
         <Section>
           <SimpleTable
             columns={[
               { key: "name", title: "Tax Name" },
               { key: "method", title: "Computation" },
-              { key: "appliesTo", title: "For" },
-              { key: "value", title: "Value" },
+              { key: "type", title: "For" },
+              { key: "rate", title: "Value" },
             ]}
-            rows={rows.filter((r) => !archived[r.id])}
+            rows={(rows || []).filter((r) => !archived[r.id])}
             onRowClick={(row) => setActive(row)}
           />
         </Section>
@@ -132,10 +175,10 @@ export default function Page() {
               </Select>
             </UnderlineField>
 
-            <UnderlineField id="appliesTo" label="Tax for">
+            <UnderlineField id="type" label="Tax for">
               <Select
-                value={form.watch("appliesTo")}
-                onValueChange={(v) => form.setValue("appliesTo", v as FormVals["appliesTo"])}
+                value={form.watch("type")}
+                onValueChange={(v) => form.setValue("type", v as FormVals["type"])}
               >
                 <SelectTrigger className="px-0 border-0 shadow-none">
                   <SelectValue placeholder="Sales/Purchase" />
@@ -147,8 +190,14 @@ export default function Page() {
               </Select>
             </UnderlineField>
 
-            <UnderlineField id="value" label="Value">
-              <UnderlineInput id="value" type="number" step="0.01" placeholder="e.g., 5 or 50.00" {...form.register("value")} />
+            <UnderlineField id="rate" label="Value">
+              <UnderlineInput
+                id="rate"
+                type="number"
+                step="0.01"
+                placeholder="e.g., 5 or 50.00"
+                {...form.register("rate")}
+              />
             </UnderlineField>
           </div>
         </form>

@@ -4,8 +4,9 @@ from backend.src.database.database import engine, Base
 from backend.src.models import product_models
 from backend.src.api.product_apis import router as products
 from backend.src.api.contacts_api import router as contacts
-Base.metadata.create_all(bind=engine)
+from backend.src.api.taxes_api import router as taxes
 from .src.api.auth import router as auth_router
+Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
     title="Shiv Accounts Cloud - API",
@@ -24,6 +25,7 @@ app.add_middleware(
 app.include_router(auth_router)
 app.include_router(products)
 app.include_router(contacts)
+app.include_router(taxes)
 
 @app.get("/")
 def health():

@@ -4,18 +4,17 @@ from sqlalchemy.orm import Session
 from sqlalchemy import or_
 from sqlalchemy.exc import IntegrityError
 from jose import JWTError
-from backend.src.database.database import get_db  # same package (api)
-from ..models.user_models import User  # up to src, then models
-from ..schemas.user_schemas import (  # up to src, then schemas
+from backend.src.database.database import get_db
+from ..models.user_models import User
+from ..schemas.user_schemas import (
     UserCreate, UserOut, LoginIn, TokenOut, MeOut
 )
-from ..utils.security import (  # up to src, then core
+from ..utils.security import (
     hash_password, verify_password, create_access_token, decode_token
 )
 
 router = APIRouter(prefix="", tags=["auth"])
 
-# Swagger UI shows a "lock" and lets us extract Bearer tokens easily
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
 
