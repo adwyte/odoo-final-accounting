@@ -1,26 +1,26 @@
-// Home (server component)
-import TopMenu from "@/components/home/TopMenu";
-import KPIs from "@/components/home/KPIs";
+"use client";
+import Link from "next/link";
 
-// Example data – replace with API later
-const kpiData = {
-  invoice: { d1: 0, d7: 23610, d30: 23610, delta: -12.2 },
-  purchase: { d1: 0, d7: 17857, d30: 17857, delta: -8.33 },
-  payment: { d1: 0, d7: 5752, d30: 5752, delta: -80.0 },
-};
-
-export default function Home() {
+export default function WelcomePage() {
   return (
-    <div className="space-y-10">
-      <TopMenu />
-      <KPIs
-        title="Dashboard"
-        groups={[
-          { label: "Total Invoice", ...kpiData.invoice },
-          { label: "Total Purchase", ...kpiData.purchase },
-          { label: "Total Payment", ...kpiData.payment },
-        ]}
-      />
-    </div>
+    <main className="min-h-screen flex flex-col items-center justify-center bg-gray-50">
+      <h1 className="text-4xl font-bold mb-4">Welcome to Shiv Accounts Cloud</h1>
+      <p className="text-gray-600 mb-8">Manage your accounts with ease.</p>
+
+      <div className="flex space-x-4">
+        <Link
+          href="/login"
+          className="px-4 py-2 bg-emerald-600 text-white rounded-lg"
+        >
+          Log in
+        </Link>
+        <Link
+          href="/signup"
+          className="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg"
+        >
+          Sign up
+        </Link>
+      </div>
+    </main>
   );
 }
