@@ -1,4 +1,3 @@
-// src/components/auth/AuthPage.tsx
 "use client";
 import React from "react";
 import Link from "next/link";
@@ -81,7 +80,7 @@ function LoginForm() {
   const { register, handleSubmit, formState: { errors, isSubmitting } } =
     useForm<LoginValues>({ resolver: zodResolver(loginSchema), defaultValues: { email: "", password: "", remember: false } });
 
-  const onSubmit = async (values: LoginValues) => { console.log("LOGIN", values); await new Promise(r => setTimeout(r, 600)); };
+  const onSubmit: import("react-hook-form").SubmitHandler<LoginValues> = async (values) => { console.log("LOGIN", values); await new Promise(r => setTimeout(r, 600)); };
 
   return (
     <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>

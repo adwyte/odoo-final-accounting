@@ -51,7 +51,6 @@ export default function Page() {
     defaultValues: { name: "", method: "Percentage", appliesTo: "Sales", value: 0 },
   });
 
-  // hydrate form when switching list <-> form
   React.useEffect(() => {
     if (active) {
       const { id, ...rest } = active;
@@ -149,13 +148,7 @@ export default function Page() {
             </UnderlineField>
 
             <UnderlineField id="value" label="Value">
-              <UnderlineInput
-                id="value"
-                type="number"
-                step="0.01"
-                placeholder="e.g., 5 or 50.00"
-                {...form.register("value")}
-              />
+              <UnderlineInput id="value" type="number" step="0.01" placeholder="e.g., 5 or 50.00" {...form.register("value")} />
             </UnderlineField>
           </div>
         </form>

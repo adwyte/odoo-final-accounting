@@ -82,6 +82,7 @@ export default function Page() {
       <ToolbarButton
         disabled={!active}
         onClick={() => {
+            
           if (!active) return;
           setArchived((a) => ({ ...a, [active.id]: !a[active.id] }));
           setActive(null);
