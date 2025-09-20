@@ -60,31 +60,7 @@ def login(payload: LoginIn, db: Session = Depends(get_db)):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
 
     token = create_access_token(
-        sub=str(user.user_id),
+        sub=str(user.id),
         extra_claims={"email": user.email, "role": user.role, "name": user.name}
     )
     return {"access_token": token, "token_type": "bearer"}
-
-
-@router.get("/me", response_model=MeOut)
-def me(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
-    try:
-        claims = decode_token(token)
-    except JWTError:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid or expired token")
-
-    user_id = claims.get("sub")
-    if not user_id:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token payload")
-
-    user = db.query(User).filter(User.user_id == user_id).first()
-    if not user:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
-
-    return MeOut(
-        user_id=user.user_id,
-        name=user.name,
-        login_id=user.login_id,
-        email=user.email,
-        role=user.role
-    )
