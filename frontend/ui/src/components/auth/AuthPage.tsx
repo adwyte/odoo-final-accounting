@@ -1,5 +1,4 @@
 "use client";
-
 import React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -7,18 +6,15 @@ import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { motion } from "framer-motion";
-import { Mail, Lock, Eye, EyeOff, GithubIcon, ArrowRight, Building2 } from "lucide-react";
+import { Mail, Lock, Eye, EyeOff, ArrowRight, User } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Separator } from "@/components/ui/separator";
 import { Checkbox } from "@/components/ui/checkbox";
 
-/** ────────────────────────────────────────────────────────────────────────────
- * Validation
- * ──────────────────────────────────────────────────────────────────────────── */
+
 const loginSchema = z.object({
   email: z.string().email("Use a valid email, please."),
   password: z.string().min(6, "At least 6 characters."),
@@ -28,12 +24,11 @@ type LoginValues = z.infer<typeof loginSchema>;
 
 const signupSchema = z
   .object({
-    fullName: z.string().min(2, "Name looks too short."),
+    name: z.string().min(2, "Name looks too short."),
+    login_id: z.string().min(3, "Login ID must be at least 3 characters."),
     email: z.string().email("Use a valid email, please."),
     password: z.string().min(8, "Minimum 8 characters."),
     confirm: z.string().min(8, "Minimum 8 characters."),
-    orgName: z.string().optional(),
-    accept: z.boolean().refine((v) => v === true, { message: "You need to accept the Terms." }),
   })
   .refine((v) => v.password === v.confirm, {
     path: ["confirm"],
@@ -43,7 +38,7 @@ type SignupValues = z.infer<typeof signupSchema>;
 
 export default function AuthPage({ mode = "login" }: { mode?: "login" | "signup" }) {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white flex items-center justify-center px-4">
+    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white flex items-start justify-center px-4 pt-5">
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
@@ -55,7 +50,6 @@ export default function AuthPage({ mode = "login" }: { mode?: "login" | "signup"
             <CardTitle className="text-2xl">Shiv Accounts Cloud</CardTitle>
             <CardDescription>Orders, Invoices &amp; Real-Time Reports</CardDescription>
           </CardHeader>
-
           <CardContent>
             <Tabs defaultValue={mode} className="w-full">
               <TabsList className="grid grid-cols-2">
@@ -74,54 +68,16 @@ export default function AuthPage({ mode = "login" }: { mode?: "login" | "signup"
                 <SignupForm />
               </TabsContent>
             </Tabs>
-
-            <Separator className="my-6" />
-
-            <div className="space-y-3">
-              <Button variant="outline" className="w-full" type="button" onClick={() => alert("TODO: OAuth Google")}>
-                {/* google glyph placeholder */}
-                <svg viewBox="0 0 533.5 544.3" className="h-4 w-4 mr-2" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M533.5 278.4c0-17.4-1.6-34.1-4.7-50.4H272v95.3h147.3c-6.4 34.7-25.7 64-54.7 83.7v69.3h88.4c51.7-47.6 80.5-117.8 80.5-197.9z" />
-                  <path d="M272 544.3c73.5 0 135.2-24.3 180.3-66.1l-88.4-69.3c-24.5 16.4-55.9 26-91.9 26-70.7 0-130.6-47.7-152-111.8H29.7v70.2C74.4 486.3 166.5 544.3 272 544.3z" />
-                  <path d="M120 322.9c-10.3-30.7-10.3-64 0-94.7V158H29.7C-9.8 235.4-9.8 335.3 29.7 412.8l90.3-69.9z" />
-                  <path d="M272 107.7c39.9-.6 78.2 14 107.5 41.1l80.5-80.5C407 24.2 345.3 0 272 0 166.5 0 74.4 57.9 29.7 131.5l90.3 70.2C141.4 155.4 201.3 107.7 272 107.7z" />
-                </svg>
-                Continue with Google
-              </Button>
-
-              <Button variant="outline" className="w-full" type="button" onClick={() => alert("TODO: OAuth GitHub")}>
-                <GithubIcon className="h-4 w-4 mr-2" /> Continue with GitHub
-              </Button>
-            </div>
-
-            <p className="text-xs text-muted-foreground mt-6 text-center">
-              Admin · Invoicing User · Contact — roles are applied after login.
-            </p>
           </CardContent>
         </Card>
-
-        <footer className="text-center mt-6 text-xs text-slate-500">
-          By continuing, you agree to our{" "}
-          <Link href="/legal/terms" className="underline underline-offset-4">
-            Terms
-          </Link>{" "}
-          and{" "}
-          <Link href="/legal/privacy" className="underline underline-offset-4">
-            Privacy Policy
-          </Link>
-          .
-        </footer>
       </motion.div>
     </div>
   );
 }
 
-/** ────────────────────────────────────────────────────────────────────────────
- * Login form
- * ──────────────────────────────────────────────────────────────────────────── */
 function LoginForm() {
-  const router = useRouter();
   const [show, setShow] = React.useState(false);
+  const router = useRouter();
 
   const {
     register,
@@ -134,27 +90,26 @@ function LoginForm() {
 
   const onSubmit = async (values: LoginValues) => {
     try {
-      const payload = { login_or_email: values.email, password: values.password };
-      const res = await fetch("http://localhost:8000/login", {
+      const res = await fetch("http://127.0.0.1:8001/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
+        body: JSON.stringify({
+          login_or_email: values.email,
+          password: values.password,
+        }),
       });
 
       if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
+        const err = await res.json();
         throw new Error(err.detail || "Login failed");
       }
 
       const data = await res.json();
       localStorage.setItem("token", data.access_token);
-      if (values.remember) localStorage.setItem("remember", "true");
-
-      router.push("/dashboard"); // ✅ redirect after login
+      router.push("/dashboard");
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "Login failed. Please try again.";
-      alert(msg);
       console.error("LOGIN ERROR:", err);
+      alert(err instanceof Error ? err.message : "Login failed");
     }
   };
 
@@ -165,7 +120,13 @@ function LoginForm() {
         <Label htmlFor="email">Email</Label>
         <div className="relative">
           <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-          <Input id="email" type="email" placeholder="you@company.com" className="pl-9" {...register("email")} />
+          <Input
+            id="email"
+            type="email"
+            placeholder="you@company.com"
+            className="pl-9"
+            {...register("email")}
+          />
         </div>
         {errors.email && <p className="text-xs text-red-500">{errors.email.message}</p>}
       </div>
@@ -195,16 +156,11 @@ function LoginForm() {
       </div>
 
       {/* Remember */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-2">
-          <Checkbox id="remember" {...register("remember")} />
-          <Label htmlFor="remember" className="text-sm text-muted-foreground">
-            Remember me
-          </Label>
-        </div>
-        <Link href="/forgot" className="text-sm underline underline-offset-4">
-          Forgot password?
-        </Link>
+      <div className="flex items-center space-x-2">
+        <Checkbox id="remember" {...register("remember")} />
+        <Label htmlFor="remember" className="text-sm text-muted-foreground">
+          Remember me
+        </Label>
       </div>
 
       <Button className="w-full" type="submit" disabled={isSubmitting}>
@@ -214,12 +170,9 @@ function LoginForm() {
   );
 }
 
-/** ────────────────────────────────────────────────────────────────────────────
- * Signup form
- * ──────────────────────────────────────────────────────────────────────────── */
 function SignupForm() {
-  const router = useRouter();
   const [show, setShow] = React.useState(false);
+  const router = useRouter();
 
   const {
     register,
@@ -228,76 +181,86 @@ function SignupForm() {
   } = useForm<SignupValues>({
     resolver: zodResolver(signupSchema),
     defaultValues: {
-      fullName: "",
+      name: "",
+      login_id: "",
       email: "",
       password: "",
       confirm: "",
-      orgName: "",
-      accept: false,
     },
   });
 
   const onSubmit = async (values: SignupValues) => {
     try {
-      // adjust to your real endpoint
-      const res = await fetch("http://localhost:8000/signup", {
+      const payload = {
+        name: values.name,
+        login_id: values.login_id,
+        email: values.email,
+        password: values.password,
+        role: "invoicing_user",
+      };
+
+      const res = await fetch("/CreateUser", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(values),
+        body: JSON.stringify(payload),
       });
 
       if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        throw new Error(err.detail || "Signup failed");
+        const err = await res.json();
+        throw new Error(err.detail || "Sign up failed");
       }
 
-      const data = await res.json();
-      // if your API returns token on signup:
-      if (data?.access_token) localStorage.setItem("token", data.access_token);
-
-      router.push("/dashboard"); // ✅ redirect after signup
+      await res.json();
+      alert("Account created! Please log in.");
+      router.push("/login"); // ✅ go back to login
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "Signup failed. Please try again.";
-      alert(msg);
       console.error("SIGNUP ERROR:", err);
+      alert(err instanceof Error ? err.message : "Sign up failed");
     }
   };
 
   return (
     <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
-      {/* Full Name */}
+      {/* Name */}
       <div className="space-y-2">
-        <Label htmlFor="fullName">Full name</Label>
-        <Input id="fullName" placeholder="e.g., Nimesh Pathak" {...register("fullName")} />
-        {errors.fullName && <p className="text-xs text-red-500">{errors.fullName.message}</p>}
+        <Label htmlFor="name">Full Name</Label>
+        <div className="relative">
+          <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+          <Input id="name" placeholder="e.g., Nimesh Pathak" className="pl-9" {...register("name")} />
+        </div>
+        {errors.name && <p className="text-xs text-red-500">{errors.name.message}</p>}
+      </div>
+
+      {/* Login ID */}
+      <div className="space-y-2">
+        <Label htmlFor="login_id">Login ID</Label>
+        <Input id="login_id" placeholder="unique login id" {...register("login_id")} />
+        {errors.login_id && <p className="text-xs text-red-500">{errors.login_id.message}</p>}
       </div>
 
       {/* Email */}
       <div className="space-y-2">
-        <Label htmlFor="email2">Work email</Label>
+        <Label htmlFor="email">Email</Label>
         <div className="relative">
           <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-          <Input id="email2" type="email" placeholder="you@shivfurniture.com" className="pl-9" {...register("email")} />
+          <Input
+            id="email"
+            type="email"
+            placeholder="you@company.com"
+            className="pl-9"
+            {...register("email")}
+          />
         </div>
         {errors.email && <p className="text-xs text-red-500">{errors.email.message}</p>}
       </div>
 
-      {/* Org Name */}
-      <div className="space-y-2">
-        <Label htmlFor="orgName">Organization (optional)</Label>
-        <div className="relative">
-          <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-          <Input id="orgName" placeholder="Shiv Furniture - Main Branch" className="pl-9" {...register("orgName")} />
-        </div>
-      </div>
-
       {/* Password */}
       <div className="space-y-2">
-        <Label htmlFor="password2">Password</Label>
+        <Label htmlFor="password">Password</Label>
         <div className="relative">
           <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
           <Input
-            id="password2"
+            id="password"
             type={show ? "text" : "password"}
             placeholder="At least 8 characters"
             className="pl-9 pr-10"
@@ -315,25 +278,15 @@ function SignupForm() {
         {errors.password && <p className="text-xs text-red-500">{errors.password.message}</p>}
       </div>
 
-      {/* Confirm */}
+      {/* Confirm Password */}
       <div className="space-y-2">
-        <Label htmlFor="confirm">Confirm password</Label>
+        <Label htmlFor="confirm">Confirm Password</Label>
         <Input id="confirm" type="password" placeholder="Re-enter password" {...register("confirm")} />
         {errors.confirm && <p className="text-xs text-red-500">{errors.confirm.message}</p>}
       </div>
 
-      {/* Accept */}
-      <div className="flex items-start space-x-2">
-        <Checkbox id="accept" {...register("accept")} />
-        <Label htmlFor="accept" className="text-sm text-muted-foreground">
-          I agree to the <Link href="/legal/terms" className="underline">Terms</Link> and{" "}
-          <Link href="/legal/privacy" className="underline">Privacy Policy</Link>.
-        </Label>
-      </div>
-      {errors.accept && <p className="text-xs text-red-500">{errors.accept.message}</p>}
-
       <Button className="w-full" type="submit" disabled={isSubmitting}>
-        {isSubmitting ? "Creating account…" : "Create account"} <ArrowRight className="ml-2 h-4 w-4" />
+        {isSubmitting ? "Creating account…" : "Sign up"} <ArrowRight className="ml-2 h-4 w-4" />
       </Button>
     </form>
   );

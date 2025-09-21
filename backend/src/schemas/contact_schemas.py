@@ -14,4 +14,4 @@ class Contact(Base):
     phone = Column(Text)
     address = Column(Text)
     type = Column(contact_type_enum, nullable=False)  # ENUM: 'customer' | 'vendor'
-    created_by = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    created_by = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=True)
